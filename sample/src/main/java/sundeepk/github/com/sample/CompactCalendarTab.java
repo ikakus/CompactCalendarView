@@ -71,16 +71,17 @@ public class CompactCalendarTab extends Fragment {
         compactCalendarView.setListener(new CompactCalendarView.CompactCalendarViewListener() {
             @Override
             public void onDayClick(Date dateClicked) {
-                List<Event> bookingsFromMap = compactCalendarView.getEvents(dateClicked);
-                Log.d(TAG, "inside onclick " + dateClicked);
-                if (bookingsFromMap != null) {
-                    Log.d(TAG, bookingsFromMap.toString());
-                    mutableBookings.clear();
-                    for (Event booking : bookingsFromMap) {
-                        mutableBookings.add((String) booking.getData());
-                    }
-                    adapter.notifyDataSetChanged();
-                }
+//                List<Event> bookingsFromMap = compactCalendarView.getEvents(dateClicked);
+//                Log.d(TAG, "inside onclick " + dateClicked);
+//                if (bookingsFromMap != null) {
+//                    Log.d(TAG, bookingsFromMap.toString());
+//                    mutableBookings.clear();
+//                    for (Event booking : bookingsFromMap) {
+//                        mutableBookings.add((String) booking.getData());
+//                    }
+//                    adapter.notifyDataSetChanged();
+//                }
+
 
             }
 

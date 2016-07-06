@@ -1,6 +1,7 @@
 package com.github.sundeepk.compactcalendarview;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -94,12 +95,14 @@ class CompactCalendarController {
     private Paint background = new Paint();
     private Rect textSizeRect;
     private String[] dayColumnNames;
+    private List<Integer> selectedDaysList = new ArrayList<>();
     // colors
     private int multiEventIndicatorColor;
     private int currentDayBackgroundColor;
     private int calenderTextColor;
     private int currentSelectedDayBackgroundColor;
     private int calenderBackgroundColor = Color.WHITE;
+
     CompactCalendarController(Paint dayPaint, OverScroller scroller, Rect textSizeRect, AttributeSet attrs,
                               Context context, int currentDayBackgroundColor, int calenderTextColor,
                               int currentSelectedDayBackgroundColor, VelocityTracker velocityTracker,
@@ -374,6 +377,10 @@ class CompactCalendarController {
         drawScrollableCalender(canvas);
     }
 
+    public List<Integer> getSelectedDaysList() {
+        return selectedDaysList;
+    }
+
     void onSingleTapConfirmed(MotionEvent e) {
         //Don't handle single tap the calendar is scrolling and is not stationary
         if (Math.abs(accumulatedScrollOffset.x) != Math.abs(width * monthsScrolledSoFar)) {
@@ -390,12 +397,19 @@ class CompactCalendarController {
 
         int dayOfMonth = ((dayRow - 1) * 7 + dayColumn + 1) - firstDayOfMonth;
 
-        if (dayOfMonth < calendarWithFirstDayOfMonth.getActualMaximum(Calendar.DAY_OF_MONTH)
-                && dayOfMonth >= 0) {
+        dayOfMonth ++; // increment to get exact day of month
+        if (selectedDaysList.contains(dayOfMonth)) {
+            selectedDaysList.remove(Integer.valueOf(dayOfMonth));
+        } else {
+            selectedDaysList.add(dayOfMonth);
+        }
+
+        if (dayOfMonth < calendarWithFirstDayOfMonth.getActualMaximum(Calendar.DAY_OF_MONTH) && dayOfMonth >= 0) {
             calendarWithFirstDayOfMonth.add(Calendar.DATE, dayOfMonth);
 
             currentCalender.setTimeInMillis(calendarWithFirstDayOfMonth.getTimeInMillis());
             performOnDayClickCallback(currentCalender.getTime());
+
         }
     }
 
@@ -853,13 +867,23 @@ class CompactCalendarController {
                 }
             } else {
                 int day = ((dayRow - 1) * 7 + dayColumn + 1) - firstDayOfMonth;
-                if (isSameYearAsToday && isSameMonthAsToday && todayDayOfMonth == day && !isAnimatingWithExpose) {
-                    // TODO calculate position of circle in a more reliable way
-                    if (showFirstDay) {
-                        drawCircle(canvas, xPosition, yPosition, currentDayBackgroundColor);
-                    }
-                } else if (currentCalender.get(Calendar.DAY_OF_MONTH) == day && isSameMonthAsCurrentCalendar && !isAnimatingWithExpose) { // selecting cliked day
+                // select current day
+//                if (isSameYearAsToday && isSameMonthAsToday && todayDayOfMonth == day && !isAnimatingWithExpose) {
+//                    // TODO calculate position of circle in a more reliable way
+//                    if (showFirstDay) {
+//                        drawCircle(canvas, xPosition, yPosition, currentDayBackgroundColor);
+//                    }
+//                } else
+
+                if (
+                    // TODO: replace with list of selected days
+//                        currentCalender.get(Calendar.DAY_OF_MONTH) == day
+                        selectedDaysList.contains(day)
+                                && isSameMonthAsCurrentCalendar
+                                && !isAnimatingWithExpose) {
+                    // selecting cliked day
                     drawCircle(canvas, xPosition, yPosition, currentSelectedDayBackgroundColor);
+
                 } else if (day == 1 && !isSameMonthAsCurrentCalendar && !isAnimatingWithExpose) { // Selecting firs day of month
                     drawCircle(canvas, xPosition, yPosition, currentSelectedDayBackgroundColor);
                 }

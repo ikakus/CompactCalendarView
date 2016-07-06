@@ -252,6 +252,9 @@ public class CompactCalendarView extends View {
         compactCalendarController.removeAllEvents();
     }
 
+    public List<Integer> getSelectedDaysList() {
+        return compactCalendarController.getSelectedDaysList();
+    }
 
     private void checkTargetHeight() {
         if (compactCalendarController.getTargetHeight() <= 0) {
