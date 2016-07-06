@@ -213,6 +213,10 @@ public class CompactCalendarView extends View {
         compactCalendarController.removeEventByEpochMillis(epochMillis);
     }
 
+    public void setDrawEvents(boolean drawEvents){
+        compactCalendarController.setShouldDrawEvents(drawEvents);
+    }
+
     /**
      * see {@link #removeEvent(Event, boolean)} when removing single events
      * or {@link #removeEvents(java.util.List)} (java.util.List)}  when removing multiple events

@@ -60,6 +60,7 @@ public class CompactCalendarTab extends Fragment {
         compactCalendarView.shouldScrollMonth(false);
         compactCalendarView.setShouldDrawDaysHeader(false);
         compactCalendarView.shouldShowFirsDay(false);
+        compactCalendarView.setDrawEvents(false);
         // below line will display Sunday as the first day of the week
         // compactCalendarView.setShouldShowMondayAsFirstDay(false);
 

@@ -1,7 +1,6 @@
 package com.github.sundeepk.compactcalendarview;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -77,6 +76,7 @@ class CompactCalendarController {
     private boolean isScrolling;
     private boolean shouldDrawDaysHeader = true;
     private boolean showFirstDay = true;
+    private boolean shouldDrawEvents = true;
     private boolean shouldScroll = true;
 
     private CompactCalendarView.CompactCalendarViewListener listener;
@@ -102,7 +102,6 @@ class CompactCalendarController {
     private int calenderTextColor;
     private int currentSelectedDayBackgroundColor;
     private int calenderBackgroundColor = Color.WHITE;
-
     CompactCalendarController(Paint dayPaint, OverScroller scroller, Rect textSizeRect, AttributeSet attrs,
                               Context context, int currentDayBackgroundColor, int calenderTextColor,
                               int currentSelectedDayBackgroundColor, VelocityTracker velocityTracker,
@@ -117,6 +116,10 @@ class CompactCalendarController {
         this.multiEventIndicatorColor = multiEventIndicatorColor;
         loadAttributes(attrs, context);
         init(context);
+    }
+
+    public void setShouldDrawEvents(boolean shouldDrawEvents) {
+        this.shouldDrawEvents = shouldDrawEvents;
     }
 
     public void setShowFirstDay(boolean showFirstDay) {
@@ -397,7 +400,7 @@ class CompactCalendarController {
 
         int dayOfMonth = ((dayRow - 1) * 7 + dayColumn + 1) - firstDayOfMonth;
 
-        dayOfMonth ++; // increment to get exact day of month
+        dayOfMonth++; // increment to get exact day of month
         if (selectedDaysList.contains(dayOfMonth)) {
             selectedDaysList.remove(Integer.valueOf(dayOfMonth));
         } else {
@@ -829,7 +832,9 @@ class CompactCalendarController {
     }
 
     void drawMonth(Canvas canvas, Calendar monthToDrawCalender, int offset) {
-        drawEvents(canvas, monthToDrawCalender, offset);
+        if (shouldDrawEvents) {
+            drawEvents(canvas, monthToDrawCalender, offset);
+        }
 
         //offset by one because we want to start from Monday
         int firstDayOfMonth = getDayOfWeek(monthToDrawCalender);
