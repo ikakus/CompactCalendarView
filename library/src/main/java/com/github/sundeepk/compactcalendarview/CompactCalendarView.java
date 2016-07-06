@@ -313,8 +313,13 @@ public class CompactCalendarView extends View {
         }
     }
 
-    public void shouldScrollMonth(boolean shouldDisableScroll){
-        this.shouldScroll = shouldDisableScroll;
+    public void shouldScrollMonth(boolean shouldScroll){
+        this.shouldScroll = shouldScroll;
+        this.compactCalendarController.setShouldScroll(shouldScroll);
+    }
+
+    public void shouldShowFirsDay(boolean showFirstDay){
+        this.compactCalendarController.setShowFirstDay(showFirstDay);
     }
 
     public boolean onTouchEvent(MotionEvent event) {

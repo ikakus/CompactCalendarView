@@ -34,7 +34,7 @@ public class CompactCalendarTab extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v =inflater.inflate(R.layout.main_tab,container,false);
+        View v = inflater.inflate(R.layout.main_tab, container, false);
 
         final List<String> mutableBookings = new ArrayList<>();
 
@@ -57,7 +57,9 @@ public class CompactCalendarTab extends Fragment {
         addEvents(compactCalendarView, Calendar.DECEMBER);
         addEvents(compactCalendarView, Calendar.AUGUST);
         compactCalendarView.invalidate();
-
+        compactCalendarView.shouldScrollMonth(false);
+        compactCalendarView.setShouldDrawDaysHeader(false);
+        compactCalendarView.shouldShowFirsDay(false);
         // below line will display Sunday as the first day of the week
         // compactCalendarView.setShouldShowMondayAsFirstDay(false);
 
@@ -71,11 +73,11 @@ public class CompactCalendarTab extends Fragment {
             public void onDayClick(Date dateClicked) {
                 List<Event> bookingsFromMap = compactCalendarView.getEvents(dateClicked);
                 Log.d(TAG, "inside onclick " + dateClicked);
-                if(bookingsFromMap != null){
+                if (bookingsFromMap != null) {
                     Log.d(TAG, bookingsFromMap.toString());
                     mutableBookings.clear();
-                    for(Event booking : bookingsFromMap){
-                        mutableBookings.add((String)booking.getData());
+                    for (Event booking : bookingsFromMap) {
+                        mutableBookings.add((String) booking.getData());
                     }
                     adapter.notifyDataSetChanged();
                 }
@@ -151,13 +153,13 @@ public class CompactCalendarTab extends Fragment {
     private List<Event> getEvents(long timeInMillis, int day) {
         if (day < 2) {
             return Arrays.asList(new Event(Color.argb(255, 169, 68, 65), timeInMillis, "Event at " + new Date(timeInMillis)));
-        } else if ( day > 2 && day <= 4) {
+        } else if (day > 2 && day <= 4) {
             return Arrays.asList(
                     new Event(Color.argb(255, 169, 68, 65), timeInMillis, "Event at " + new Date(timeInMillis)),
                     new Event(Color.argb(255, 100, 68, 65), timeInMillis, "Event 2 at " + new Date(timeInMillis)));
         } else {
             return Arrays.asList(
-                    new Event(Color.argb(255, 169, 68, 65), timeInMillis, "Event at " + new Date(timeInMillis) ),
+                    new Event(Color.argb(255, 169, 68, 65), timeInMillis, "Event at " + new Date(timeInMillis)),
                     new Event(Color.argb(255, 100, 68, 65), timeInMillis, "Event 2 at " + new Date(timeInMillis)),
                     new Event(Color.argb(255, 70, 68, 65), timeInMillis, "Event 3 at " + new Date(timeInMillis)));
         }

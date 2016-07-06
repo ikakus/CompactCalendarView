@@ -75,6 +75,8 @@ class CompactCalendarController {
     private boolean isSmoothScrolling;
     private boolean isScrolling;
     private boolean shouldDrawDaysHeader = true;
+    private boolean showFirstDay = true;
+    private boolean shouldScroll = true;
 
     private CompactCalendarView.CompactCalendarViewListener listener;
     private Map<String, List<Events>> eventsByMonthAndYearMap = new HashMap<>();
@@ -92,18 +94,12 @@ class CompactCalendarController {
     private Paint background = new Paint();
     private Rect textSizeRect;
     private String[] dayColumnNames;
-
     // colors
     private int multiEventIndicatorColor;
     private int currentDayBackgroundColor;
     private int calenderTextColor;
     private int currentSelectedDayBackgroundColor;
     private int calenderBackgroundColor = Color.WHITE;
-
-    private enum Direction {
-        NONE, HORIZONTAL, VERTICAL
-    }
-
     CompactCalendarController(Paint dayPaint, OverScroller scroller, Rect textSizeRect, AttributeSet attrs,
                               Context context, int currentDayBackgroundColor, int calenderTextColor,
                               int currentSelectedDayBackgroundColor, VelocityTracker velocityTracker,
@@ -118,6 +114,14 @@ class CompactCalendarController {
         this.multiEventIndicatorColor = multiEventIndicatorColor;
         loadAttributes(attrs, context);
         init(context);
+    }
+
+    public void setShowFirstDay(boolean showFirstDay) {
+        this.showFirstDay = showFirstDay;
+    }
+
+    public void setShouldScroll(boolean shouldScroll) {
+        this.shouldScroll = shouldScroll;
     }
 
     private void loadAttributes(AttributeSet attrs, Context context) {
@@ -166,7 +170,7 @@ class CompactCalendarController {
             densityAdjustedSnapVelocity = (int) (screenDensity * SNAP_VELOCITY_DIP_PER_SECOND);
             maximumVelocity = configuration.getScaledMaximumFlingVelocity();
 
-            final DisplayMetrics dm = context.getResources().getDisplayMetrics() ;
+            final DisplayMetrics dm = context.getResources().getDisplayMetrics();
             multiDayIndicatorStrokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, dm);
         }
 
@@ -194,20 +198,20 @@ class CompactCalendarController {
         calendarWithFirstDayOfMonth.set(Calendar.MILLISECOND, 0);
     }
 
-    float getScreenDensity(){
+    float getScreenDensity() {
         return screenDensity;
     }
 
-    float getDayIndicatorRadius(){
+    float getDayIndicatorRadius() {
         return bigCircleIndicatorRadius;
-    }
-
-    void setGrowFactorIndicator(float growfactorIndicator) {
-        this.growfactorIndicator = growfactorIndicator;
     }
 
     float getGrowFactorIndicator() {
         return growfactorIndicator;
+    }
+
+    void setGrowFactorIndicator(float growfactorIndicator) {
+        this.growfactorIndicator = growfactorIndicator;
     }
 
     void setAnimationStatus(int animationStatus) {
@@ -218,7 +222,7 @@ class CompactCalendarController {
         return targetHeight;
     }
 
-    int getWidth(){
+    int getWidth() {
         return width;
     }
 
@@ -330,7 +334,7 @@ class CompactCalendarController {
     private float getInterpolatedBigCircleIndicator() {
         float x0 = textSizeRect.height();
         float x1 = (heightPerDay - yIndicatorOffset); // take into account indicator offset
-        float x =  (x1 + textSizeRect.height()) / 1.7f; // pick a point which is almost half way through heightPerDay and textSizeRect
+        float x = (x1 + textSizeRect.height()) / 1.7f; // pick a point which is almost half way through heightPerDay and textSizeRect
         double y1 = 0.5 * Math.sqrt((x1 * x1) + (x1 * x1));
         double y0 = 0.5 * Math.sqrt((x0 * x0) + (x0 * x0));
 
@@ -454,14 +458,16 @@ class CompactCalendarController {
     }
 
     private void handleHorizontalScrolling() {
-        int velocityX = computeVelocity();
-        handleSmoothScrolling(velocityX);
+        if (shouldScroll) {
+            int velocityX = computeVelocity();
+            handleSmoothScrolling(velocityX);
 
-        currentDirection = Direction.NONE;
-        setCalenderToFirstDayOfMonth(calendarWithFirstDayOfMonth, currentDate, -monthsScrolledSoFar, 0);
+            currentDirection = Direction.NONE;
+            setCalenderToFirstDayOfMonth(calendarWithFirstDayOfMonth, currentDate, -monthsScrolledSoFar, 0);
 
-        if (calendarWithFirstDayOfMonth.get(Calendar.MONTH) != currentCalender.get(Calendar.MONTH)) {
-            setCalenderToFirstDayOfMonth(currentCalender, currentDate, -monthsScrolledSoFar, 0);
+            if (calendarWithFirstDayOfMonth.get(Calendar.MONTH) != currentCalender.get(Calendar.MONTH)) {
+                setCalenderToFirstDayOfMonth(currentCalender, currentDate, -monthsScrolledSoFar, 0);
+            }
         }
 
     }
@@ -591,7 +597,7 @@ class CompactCalendarController {
         }
     }
 
-    private Events getEventDayEvent(long eventTimeInMillis){
+    private Events getEventDayEvent(long eventTimeInMillis) {
         eventsCalendar.setTimeInMillis(eventTimeInMillis);
         int dayInMonth = eventsCalendar.get(Calendar.DAY_OF_MONTH);
         String keyForCalendarEvent = getKeyForCalendarEvent(eventsCalendar);
@@ -608,7 +614,7 @@ class CompactCalendarController {
         return null;
     }
 
-    void removeEventsByDate(Date dateToRemoveEventFor){
+    void removeEventsByDate(Date dateToRemoveEventFor) {
         removeEventByEpochMillis(dateToRemoveEventFor.getTime());
     }
 
@@ -636,7 +642,7 @@ class CompactCalendarController {
         String key = getKeyForCalendarEvent(eventsCalendar);
         List<Events> eventsForMonthAndYear = eventsByMonthAndYearMap.get(key);
         if (eventsForMonthAndYear != null) {
-            for(Events events : eventsForMonthAndYear){
+            for (Events events : eventsForMonthAndYear) {
                 int indexOfEvent = events.getEvents().indexOf(event);
                 if (indexOfEvent >= 0) {
                     events.getEvents().remove(indexOfEvent);
@@ -657,7 +663,6 @@ class CompactCalendarController {
     private String getKeyForCalendarEvent(Calendar cal) {
         return cal.get(Calendar.YEAR) + "_" + cal.get(Calendar.MONTH);
     }
-
 
     void setGrowProgress(float grow) {
         growFactor = grow;
@@ -741,9 +746,9 @@ class CompactCalendarController {
                 float xPosition = widthPerDay * dayOfWeek + paddingWidth + paddingLeft + accumulatedScrollOffset.x + offset - paddingRight;
                 float yPosition = weekNumberForMonth * heightPerDay + paddingHeight;
 
-                if (((animationStatus == EXPOSE_CALENDAR_ANIMATION || animationStatus == ANIMATE_INDICATORS) && xPosition >= growFactor ) || yPosition >= growFactor) {
+                if (((animationStatus == EXPOSE_CALENDAR_ANIMATION || animationStatus == ANIMATE_INDICATORS) && xPosition >= growFactor) || yPosition >= growFactor) {
                     continue;
-                } else if (animationStatus == EXPAND_COLLAPSE_CALENDAR && yPosition >= growFactor){
+                } else if (animationStatus == EXPAND_COLLAPSE_CALENDAR && yPosition >= growFactor) {
                     continue;
                 }
 
@@ -850,11 +855,12 @@ class CompactCalendarController {
                 int day = ((dayRow - 1) * 7 + dayColumn + 1) - firstDayOfMonth;
                 if (isSameYearAsToday && isSameMonthAsToday && todayDayOfMonth == day && !isAnimatingWithExpose) {
                     // TODO calculate position of circle in a more reliable way
-                    drawCircle(canvas, xPosition, yPosition, currentDayBackgroundColor);
-                } else if (currentCalender.get(Calendar.DAY_OF_MONTH) == day && isSameMonthAsCurrentCalendar && !isAnimatingWithExpose) {
+                    if (showFirstDay) {
+                        drawCircle(canvas, xPosition, yPosition, currentDayBackgroundColor);
+                    }
+                } else if (currentCalender.get(Calendar.DAY_OF_MONTH) == day && isSameMonthAsCurrentCalendar && !isAnimatingWithExpose) { // selecting cliked day
                     drawCircle(canvas, xPosition, yPosition, currentSelectedDayBackgroundColor);
-                } else if (day == 1 && !isSameMonthAsCurrentCalendar && !isAnimatingWithExpose
-                        ) {
+                } else if (day == 1 && !isSameMonthAsCurrentCalendar && !isAnimatingWithExpose) { // Selecting firs day of month
                     drawCircle(canvas, xPosition, yPosition, currentSelectedDayBackgroundColor);
                 }
                 if (day <= monthToDrawCalender.getActualMaximum(Calendar.DAY_OF_MONTH) && day > 0) {
@@ -869,7 +875,7 @@ class CompactCalendarController {
         dayPaint.setColor(color);
         if (animationStatus == ANIMATE_INDICATORS) {
             float maxRadius = bigCircleIndicatorRadius * 1.4f;
-            drawCircle(canvas, growfactorIndicator > maxRadius ? maxRadius: growfactorIndicator, x, y - (textHeight / 6));
+            drawCircle(canvas, growfactorIndicator > maxRadius ? maxRadius : growfactorIndicator, x, y - (textHeight / 6));
         } else {
             drawCircle(canvas, bigCircleIndicatorRadius, x, y - (textHeight / 6));
         }
@@ -885,6 +891,10 @@ class CompactCalendarController {
         canvas.drawCircle(x, y, radius, dayPaint);
         dayPaint.setStyle(Paint.Style.STROKE);
         dayPaint.setColor(calenderTextColor);
+    }
+
+    private enum Direction {
+        NONE, HORIZONTAL, VERTICAL
     }
 
 }
