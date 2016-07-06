@@ -401,10 +401,12 @@ class CompactCalendarController {
         int dayOfMonth = ((dayRow - 1) * 7 + dayColumn + 1) - firstDayOfMonth;
 
         dayOfMonth++; // increment to get exact day of month
-        if (selectedDaysList.contains(dayOfMonth)) {
-            selectedDaysList.remove(Integer.valueOf(dayOfMonth));
-        } else {
-            selectedDaysList.add(dayOfMonth);
+        if(dayOfMonth>0) {
+            if (selectedDaysList.contains(dayOfMonth)) {
+                selectedDaysList.remove(Integer.valueOf(dayOfMonth));
+            } else {
+                selectedDaysList.add(dayOfMonth);
+            }
         }
 
         if (dayOfMonth < calendarWithFirstDayOfMonth.getActualMaximum(Calendar.DAY_OF_MONTH) && dayOfMonth >= 0) {
